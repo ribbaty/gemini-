@@ -428,6 +428,10 @@ const App: React.FC = () => {
   const selectedCount = images.filter(i => i.selected).length;
   const allSelected = images.length > 0 && images.every(img => img.selected);
 
+  // Progress Bar Calculation
+  const processedCount = images.filter(i => i.status === 'success' || i.status === 'error').length;
+  const progressPercentage = images.length > 0 ? Math.round((processedCount / images.length) * 100) : 0;
+
   const filteredImages = images.filter(img => 
     img.caption.toLowerCase().includes(searchTerm.toLowerCase()) ||
     img.captionZh.includes(searchTerm) ||
@@ -444,7 +448,7 @@ const App: React.FC = () => {
     <div className="min-h-screen flex flex-col">
         {/* Header */}
         <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-20">
-            <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="max-w-[1600px] mx-4 md:mx-auto h-16 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                         <Layers className="text-white" size={20} />
@@ -543,6 +547,27 @@ const App: React.FC = () => {
 
             {/* Main Content */}
             <section className="lg:col-span-9">
+
+                {/* Progress Bar */}
+                {images.length > 0 && (
+                    <div className="mb-6 bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-sm">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                                任务进度 (Progress)
+                            </span>
+                            <span className="text-xs font-mono text-indigo-300">
+                                {progressPercentage}% ({processedCount}/{images.length})
+                            </span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                            <div 
+                                className="h-full bg-gradient-to-r from-indigo-600 to-purple-500 transition-all duration-500 ease-out"
+                                style={{ width: `${progressPercentage}%` }}
+                            ></div>
+                        </div>
+                    </div>
+                )}
+
                 {images.length > 0 && (
                      <div className="mb-4 flex flex-col md:flex-row gap-4 items-center">
                         <div className="relative group flex-1 w-full">

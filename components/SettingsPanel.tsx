@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { AppSettings, DEFAULT_PROMPT } from '../types';
-import { Settings2, Wand2, Key, Eye, EyeOff, Server, Box } from 'lucide-react';
+import { AppSettings, FLUX_PROMPT, QWEN_PROMPT } from '../types';
+import { Settings2, Wand2, Key, Eye, EyeOff, Server, Box, FileText, ScanText } from 'lucide-react';
 
 interface SettingsPanelProps {
   settings: AppSettings;
@@ -15,11 +15,51 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, setSetti
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleModeChange = (mode: 'flux' | 'qwen') => {
+      setSettings(prev => ({
+          ...prev,
+          taggingMode: mode,
+          customPrompt: mode === 'flux' ? FLUX_PROMPT : QWEN_PROMPT
+      }));
+  };
+
   return (
     <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 space-y-6 h-fit sticky top-4">
       <div className="flex items-center space-x-2 text-indigo-400 mb-4">
         <Settings2 size={20} />
         <h2 className="font-semibold">设置 (Configuration)</h2>
+      </div>
+
+      {/* Mode Selection */}
+      <div className="space-y-3 pb-4 border-b border-gray-700">
+         <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wide flex items-center gap-1">
+            <ScanText size={12} /> 打标模式 (Tagging Mode)
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+            <button
+                onClick={() => handleModeChange('flux')}
+                className={`flex items-center justify-center space-x-2 py-2 rounded-lg text-xs font-medium border transition-all
+                ${settings.taggingMode === 'flux' 
+                    ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/50' 
+                    : 'bg-gray-800 border-gray-600 text-gray-400 hover:bg-gray-700'}`}
+            >
+                <FileText size={14} />
+                <span>Flux 模式</span>
+            </button>
+            <button
+                onClick={() => handleModeChange('qwen')}
+                className={`flex items-center justify-center space-x-2 py-2 rounded-lg text-xs font-medium border transition-all
+                ${settings.taggingMode === 'qwen' 
+                    ? 'bg-cyan-600 border-cyan-500 text-white shadow-lg shadow-cyan-900/50' 
+                    : 'bg-gray-800 border-gray-600 text-gray-400 hover:bg-gray-700'}`}
+            >
+                <ScanText size={14} />
+                <span>千问/OCR 模式</span>
+            </button>
+        </div>
+        <p className="text-[10px] text-gray-500 px-1">
+            {settings.taggingMode === 'flux' ? "专注形状、构图，去除风格描述 (适合 Flux)" : "专注文字识别(OCR)、客观细节 (适合 Qwen/通用)"}
+        </p>
       </div>
 
       {/* Provider Selection */}
@@ -78,8 +118,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, setSetti
          <div className="flex items-center justify-between mb-2">
             <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide">系统提示词 (Prompt)</label>
             <button 
-                onClick={() => updateSetting('customPrompt', DEFAULT_PROMPT)}
+                onClick={() => handleModeChange(settings.taggingMode)}
                 className="text-[10px] text-indigo-400 hover:text-indigo-300 flex items-center"
+                title="重置为当前模式的默认提示词"
             >
                 <Wand2 size={10} className="mr-1" /> 重置
             </button>
