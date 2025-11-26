@@ -1,24 +1,18 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { CaptionResult } from "../types";
 
-// Helper to safely get API Key from environment (works in Vite, Node, etc.)
+// Helper to safely get API Key from environment (Vite specific)
 const getEnvironmentApiKey = () => {
-    // 1. Try Vite environment variable (Standard for React/Vite apps)
-    // We check typeof to avoid ReferenceErrors in environments where import.meta is not supported
+    // Try Vite environment variable (Standard for React/Vite apps)
     try {
-        // Cast import.meta to any to avoid TypeScript errors regarding 'env' property
+        // Cast import.meta to any to avoid TypeScript errors if types aren't set up
         const meta = import.meta as any;
         if (typeof meta !== 'undefined' && meta.env && meta.env.VITE_API_KEY) {
             return meta.env.VITE_API_KEY as string;
         }
-    } catch (e) {}
-
-    // 2. Try process.env (safely check for Node.js/Webpack environment)
-    try {
-        if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
-            return process.env.API_KEY as string;
-        }
-    } catch (e) {}
+    } catch (e) {
+        // Ignore errors if import.meta is not available
+    }
 
     return "";
 };
