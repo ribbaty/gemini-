@@ -1,6 +1,28 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { CaptionResult } from "../types";
 
+// Helper to safely get API Key from environment (works in Vite, Node, etc.)
+const getEnvironmentApiKey = () => {
+    // 1. Try Vite environment variable (Standard for React/Vite apps)
+    // We check typeof to avoid ReferenceErrors in environments where import.meta is not supported
+    try {
+        // Cast import.meta to any to avoid TypeScript errors regarding 'env' property
+        const meta = import.meta as any;
+        if (typeof meta !== 'undefined' && meta.env && meta.env.VITE_API_KEY) {
+            return meta.env.VITE_API_KEY as string;
+        }
+    } catch (e) {}
+
+    // 2. Try process.env (safely check for Node.js/Webpack environment)
+    try {
+        if (typeof process !== 'undefined' && process.env && process.env.API_KEY) {
+            return process.env.API_KEY as string;
+        }
+    } catch (e) {}
+
+    return "";
+};
+
 // Generate both English and Chinese captions
 export const generateCaption = async (
   base64Image: string,
@@ -8,8 +30,8 @@ export const generateCaption = async (
   prompt: string,
   apiKey?: string
 ): Promise<CaptionResult> => {
-  // Use custom key if provided, otherwise fallback to environment key
-  const finalApiKey = apiKey?.trim() || process.env.API_KEY;
+  // Use custom key if provided, otherwise fallback to environment key safely
+  const finalApiKey = apiKey?.trim() || getEnvironmentApiKey();
   
   // Note: We don't throw immediately if key is missing here, the SDK will throw a specific error
   const ai = new GoogleGenAI({ apiKey: finalApiKey });
@@ -63,7 +85,7 @@ export const generateCaption = async (
 
 // Translate Chinese back to English for Flux
 export const translateToEnglish = async (chineseText: string, apiKey?: string): Promise<string> => {
-  const finalApiKey = apiKey?.trim() || process.env.API_KEY;
+  const finalApiKey = apiKey?.trim() || getEnvironmentApiKey();
   const ai = new GoogleGenAI({ apiKey: finalApiKey });
 
   try {
