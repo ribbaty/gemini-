@@ -1,0 +1,5 @@
+{
+  "name": "FluxTag - AI 批量打标器",
+  "description": "Flux 模型专用批量图片打标工具。使用 Gemini Vision 自动生成标注，支持批量编辑和 .txt 导出。",
+  "requestFramePermissions": []
+}
